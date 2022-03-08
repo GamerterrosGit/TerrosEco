@@ -1,0 +1,23 @@
+{
+  "name": "@gamerterros/economy",
+  "version": "1.0.0",
+  "description": "a simple djs eco system",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GamerterrosGit/-gamerterros-eco.git"
+  },
+  "keywords": [],
+  "author": "GamerTerros",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GamerterrosGit/-gamerterros-eco/issues"
+  },
+  "homepage": "https://github.com/GamerterrosGit/-gamerterros-eco#readme",
+  "dependencies": {
+    "mongoose": "^6.2.4"
+  }
+}

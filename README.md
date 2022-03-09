@@ -41,33 +41,38 @@ client.eco = new TerrosEco({
 });
 client.eco.connect(); //Connects the package to the mongodb cluster
 
-client.on("messageCreate", async (message) => {
-  if (message.content.startsWith(`${PREFIX}bal`)) {
-    const wallet = await client.eco.wallet({ UserID: message.author.id });
-    const bank = await client.eco.bank({ UserID: message.author.id });
-    const bankSpace = await client.eco.bankSpace({ UserID: message.author.id });
-    const SpecialCoin = await client.eco.specialCoin({
-      UserID: message.author.id,
-    });
-    if (wallet || bank || bankSpace || SpecialCoin === "UNREGISTERED_USER")
-      return message.reply({
-        content: "you havent registered please register",
+client.on("interactionCreate", async (i) => {
+  if (i.isCommand()) {
+    const { commandName } = i;
+    if (commandName === "bal") {
+      const wallet = await client.eco.wallet({ UserID: message.author.id });
+      const bank = await client.eco.bank({ UserID: message.author.id });
+      const bankSpace = await client.eco.bankSpace({
+        UserID: message.author.id,
       });
-    message.reply({
-      content: `Wallet: ${wallet}\nBank: ${bank}/${bankSpace}\nTerrosCoins: ${SpecialCoin}`,
-    });
-  }
-  if (message.content.startsWith(`${PREFIX}bal`)) {
-    const result = await client.eco.register({
-      UserID: message.author.id,
-      DefaultWallet: 0,
-      DefaultBank: 0,
-      DefaultBankSpace: 5000,
-    });
-    if (result === "REGISTERED")
-      return message.reply({ content: "you have already registered" });
-    if (result === "DONE")
-      return message.reply({ content: `You have successfully registered` });
+      const SpecialCoin = await client.eco.specialCoin({
+        UserID: i.user.id,
+      });
+      if (wallet || bank || bankSpace || SpecialCoin === "UNREGISTERED_USER")
+        return i.reply({
+          content: "you havent registered please register",
+        });
+      i.reply({
+        content: `Wallet: ${wallet}\nBank: ${bank}/${bankSpace}\nTerrosCoins: ${SpecialCoin}`,
+      });
+    }
+    if (commandName === "register") {
+      const result = await client.eco.register({
+        UserID: i.user.id,
+        DefaultWallet: 0,
+        DefaultBank: 0,
+        DefaultBankSpace: 5000,
+      });
+      if (result === "REGISTERED")
+        return i.reply({ content: "you have already registered" });
+      if (result === "DONE")
+        return i.reply({ content: `You have successfully registered` });
+    }
   }
 });
 

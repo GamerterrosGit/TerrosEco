@@ -1,6 +1,6 @@
 {
   "name": "terros-eco",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "a simple djs eco system",
   "main": "index.js",
   "scripts": {

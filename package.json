@@ -1,6 +1,6 @@
 {
-  "name": "@gamerterros/economy",
-  "version": "1.0.0",
+  "name": "terros-eco",
+  "version": "1.0.2",
   "description": "a simple djs eco system",
   "main": "index.js",
   "scripts": {

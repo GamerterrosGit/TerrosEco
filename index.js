@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const profile = require("./models/economy");
 const TerrosEco = class {
-  constructor(notify, URI, SpecialCoin) {
+  constructor({ notify, URI, SpecialCoin }) {
     this.notify = notify || false;
     if (!URI) return console.log("Invalid URI");
     this.URI = URI;
@@ -54,26 +54,95 @@ const TerrosEco = class {
   async add({ UserID, Amount, Property }) {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
-    if (!data.Property)
+    if (
+      Property != "Wallet" ||
+      Property != "Bank" ||
+      Property != "SpecialCoin" ||
+      Property != "BankSpace"
+    )
       throw new TypeError(
         "Invalid Property: the properties can only be Wallet, Bank, BankSpace or SpecialCoin"
       );
-    data.Property = data.Property + Amount;
-    data.save();
-    return "DONE";
+    switch (Property) {
+      case "Wallet":
+        {
+          data.Wallet = data.Wallet + Amount;
+          data.save();
+          return "DONE";
+        }
+        break;
+
+        case "Bank":
+        {
+          data.Bank = data.Bank + Amount;
+          data.save();
+          return "DONE";
+        }
+        break;
+
+        case "BankSpace":
+        {
+          data.BankSpace = data.BankSpace + Amount;
+          data.save();
+          return "DONE";
+        }
+        break;
+
+        case "SpecialCoin":
+        {
+          data.SpecialCoin = data.SpecialCoin + Amount;
+          data.save();
+          return "DONE";
+        }
+        break;
+    }
   }
 
   async remove({ UserID, Amount, Property }) {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
-    if (data.Wallet == 0 || data.Wallet < Amount) return "USER_BROKE";
-    if (!data.Property)
+    if (
+      Property != "Wallet" ||
+      Property != "Bank" ||
+      Property != "SpecialCoin" ||
+      Property != "BankSpace"
+    )
       throw new TypeError(
         "Invalid Property: the properties can only be Wallet, Bank, BankSpace or SpecialCoin"
       );
-    data.Property = data.Property - Amount;
-    data.save();
-    return "DONE";
+    switch (Property) {
+      case "Wallet":
+        {
+          data.Wallet = data.Wallet - Amount;
+          data.save();
+          return "DONE";
+        }
+        break;
+
+        case "Bank":
+        {
+          data.Bank = data.Bank - Amount;
+          data.save();
+          return "DONE";
+        }
+        break;
+
+        case "BankSpace":
+        {
+          data.BankSpace = data.BankSpace - Amount;
+          data.save();
+          return "DONE";
+        }
+        break;
+
+        case "SpecialCoin":
+        {
+          data.SpecialCoin = data.SpecialCoin - Amount;
+          data.save();
+          return "DONE";
+        }
+        break;
+    }
   }
 
   async withdraw({ UserID, Amount }) {
@@ -127,6 +196,12 @@ const TerrosEco = class {
     return "DONE";
   }
 
+  // async daily({ UserID, Amount }) {
+  //   const data = await profile.findOne({ UserID })
+  //   if (!data) return "UNREGISTERED_USER";
+    
+  // }
+
   async wallet({ UserID }) {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
@@ -139,9 +214,9 @@ const TerrosEco = class {
     return data.Bank;
   }
 
-  async test(id) {
-      return id;
-  }
+  // async test(id) {
+  //   return id;
+  // }
 
   async bankSpace({ UserID }) {
     const data = await profile.findOne({ UserID });

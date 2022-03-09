@@ -11,9 +11,9 @@ module.exports = model(
     /*Job: { type: String },
     Inventory: { type: Array, default: [] },*/
     BankSpace: { type: Number, default: 1000 },
-    DailyDate: { type: Date },
-    WeeklyDate: { type: Date },
-    DailyAmount: { type: Number, default: 25000 },
-    WeeklyAmount: { type: Number, default: 150000 },
+    LastDaily: { type: Date },
+    LastWeekly: { type: Date },
+    DailyAmount: { type: Number, default: 0 },
+    WeeklyAmount: { type: Number, default: 0 },
   })
 );

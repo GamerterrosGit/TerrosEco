@@ -57,10 +57,10 @@ client.on("interactionCreate", async (i) => {
   if (i.isCommand()) {
     const { commandName } = i;
     if (commandName === "bal") {
-      const wallet = await client.eco.wallet({ UserID: message.author.id });
-      const bank = await client.eco.bank({ UserID: message.author.id });
+      const wallet = await client.eco.wallet({ UserID: i.user.id });
+      const bank = await client.eco.bank({ UserID: i.user.id });
       const bankSpace = await client.eco.bankSpace({
-        UserID: message.author.id,
+        UserID: i.user.id,
       });
       const SpecialCoin = await client.eco.specialCoin({
         UserID: i.user.id,

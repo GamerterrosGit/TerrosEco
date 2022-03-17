@@ -8,6 +8,12 @@ const TerrosEco = class {
     this.SpecialCoin = SpecialCoin || false;
   }
 
+  on(event, func) {
+    switch(event) {
+      case "ready" : return func()
+    }
+  }
+
   // Connect function which connects to database
   async connect() {
     if (this.notify) {
@@ -49,6 +55,13 @@ const TerrosEco = class {
       }).save();
       return "DONE";
     }
+  }
+
+  async delete({ UserID }) {
+    const data = await profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED";
+    data.delete();
+    return "DONE"
   }
 
   async add({ UserID, Amount, Property }) {
@@ -196,11 +209,115 @@ const TerrosEco = class {
     return "DONE";
   }
 
-  // async daily({ UserID, Amount }) {
-  //   const data = await profile.findOne({ UserID })
-  //   if (!data) return "UNREGISTERED_USER";
-    
-  // }
+  async daily({ UserID, Amount }) {
+    const data = await profile.findOne({ UserID })
+    if (!data) return "UNREGISTERED_USER";
+    let timeout = 86400000
+    let reward = Amount
+    if(timeout -(Date.now()-data.LastWeekly)>0) return { result:"TIMEOUT", time:ms(timeout-(Data.now()-data.LastWeekly)) };
+    data.Wallet +=reward
+    data.LastWeekly = Date.now()
+    data.save()
+    return { result:"DONE" };
+  }
+
+  async weekly({ UserID, Amount }) {
+    const data = await profile.findOne({ UserID })
+    if (!data) return "UNREGISTERED_USER";
+    let timeout = 604800000
+    let reward = Amount
+    if(timeout -(Date.now()-data.LastWeekly)>0) return { result:"TIMEOUT", time:ms(timeout-(Data.now()-data.LastWeekly)) };
+    data.Wallet +=reward
+    data.LastWeekly = Date.now()
+    data.save()
+    return { result:"DONE" };
+  }
+
+  async monthly({ UserID, Amount }) {
+    const data = await profile.findOne({ UserID })
+    if (!data) return "UNREGISTERED_USER";
+    let timeout = 2629800000
+    let reward = Amount
+    if(timeout -(Date.now()-data.LastMonthly)>0) return { result:"TIMEOUT", time:ms(timeout-(Data.now()-data.LastMonthly)) };
+    data.Wallet +=reward
+    data.LastMonthly = Date.now()
+    data.save()
+    return { result:"DONE" };
+  }
+
+  async yearly({ UserID, Amount }) {
+    const data = await profile.findOne({ UserID })
+    if (!data) return "UNREGISTERED_USER";
+    let timeout = 31556952000
+    let reward = Amount
+    if(timeout -(Date.now()-data.LastYearly)>0) return { result:"TIMEOUT", time:ms(timeout-(Data.now()-data.LastYearly)) };
+    data.Wallet +=reward
+    data.LastYearly = Date.now()
+    data.save()
+    return { result:"DONE" };
+  }
+  /* Job System */
+
+  async job({ UserID }) {
+    const data = await profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED_USER";
+    return { job:data.Job, salary:data.Salary };
+  }
+
+  async assignJob({ UserID, Job, Salary }) {
+    const data = await profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED_USER";
+    data.Job = Job || data.Job;
+    data.Salary = Salary || data.Salary;
+    data.save();
+    return "DONE";
+  }
+
+  async resignJob({ UserID }) {
+    const data = await profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED_USER";
+    if(data.Job === "Unemployed") return "NO_JOB";
+    data.Job = Unemployed
+    data.Salary = data.Salary;
+    data.save();
+    return "DONE";
+  }
+
+  /**/
+
+  /* Shop System */
+  
+  /**/
+
+  async profile({ UserID }) {
+    const data = await profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED_USER";
+    return { wallet:data.Wallet, bank:data.Bank, bankSpace:data.BankSpace, id:data.UserID, created:data.CreatedAt, specialCoin:data.SpecialCoin, job:data.Job, salary:data.Salary, lastDaily:data.LastDaily, lastWeekly:data.LastWeekly, lastMonthly:data.LastMonthly, lastYearly:data.LastYearly }
+  }
+
+  async progressBar({ value, maxValue, size }) {
+  
+    let barArray = [];
+    let bar = {
+      fillStart: 'https://cdn.discordapp.com/emojis/937428162797797418.gif',
+      fillBar: 'https://cdn.discordapp.com/emojis/937428161950519366.gif',
+      fillEnd: 'https://cdn.discordapp.com/emojis/937428160889376828.gif',
+      emptyStart: 'https://cdn.discordapp.com/emojis/937428162369970196.webp',
+      emptyBar: 'https://cdn.discordapp.com/emojis/937428160109224006.webp',
+      emptyEnd: 'https://cdn.discordapp.com/emojis/937428160188928081.webp'
+    }
+  
+    let fill = Math.round(size * (value / maxValue > 1 ? 1 : value / maxValue));
+    let empty = size - fill > 0 ? size - fill : 0;
+  
+    for (let i = 1; i <= fill; i++) barArray.push(bar.fillBar);
+    for (let i = 1; i <= empty; i++) barArray.push(bar.emptyBar);
+  
+    barArray[0] = barArray[0] == bar.fillBar ? bar.fillStart : bar.emptyStart;
+    barArray[barArray.length -1] = barArray[barArray.length -1] == bar.fillBar ? bar.fillEnd : bar.emptyEnd;
+  
+    return barArray.join(``);
+  }
 
   async wallet({ UserID }) {
     const data = await profile.findOne({ UserID });

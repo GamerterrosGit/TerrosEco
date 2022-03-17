@@ -20,6 +20,18 @@ Let's take a look at how you can install this package into your Discord Bot Proj
 
 `npm i terros-eco --save`
 
+## New Changes
+
+- 💸 <b>Job System<b> | You can give users Jobs and Salaries.
+
+- 💸 <b>Timed Payouts<b> | Added daily, weekly, monthly and yearly function.
+
+- 💸 <b>New Features<b> | Added utility functions like delete(deletes the user from the database), profile(returns all the properties stored by the user like wallet, bank, bankSpace, job, salary, lastDaily, id(the users id), created(the date when the user was created)) and finally the progressBar function takes values such as value(the current progress),maxValue, size(example 5, returns 5 progress bars with 20% and 40% and so on progress if the max value is 100).
+
+## Coming Soon
+
+- 🛒 <b>Shop System<b> | A system with buy,sell and trade functions and inventories
+
 ## Example Code
 
 ```js

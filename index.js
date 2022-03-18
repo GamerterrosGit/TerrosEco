@@ -257,8 +257,8 @@ class TerrosEco extends EventEmitter {
     data.Salary = Salary || data.Salary;
     data.WorkCooldown = Cooldown;
     data.MinWorks = MinWorkPerDay;
-    data.FirstWork = Date.now();
     data.save();
+    this.emit('gotjob', UserID);
     return "DONE";
   }
   
@@ -266,18 +266,12 @@ class TerrosEco extends EventEmitter {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
     if(data.Job === "Unemployed") return "NO_JOB";
-    if(data.MinWorks > data.TimesWorked && data.FirstWork > new Date().setHours(23,59,59,999)) {
-      data.Job = "Unemployed";
-      data.Salary = 0;
-      data.save();
-      return "RESIGNED"
-    } else {
-      if(data.WorkCooldown -(Date.now()-data.LastWorked)>0) return { result:"TIMEOUT", time:ms(timeout-(Data.now()-data.LastWorked)) };
-      data.Wallet += data.Salary
-      data.TimesWorked += 1
-      data.LastWorked = Date.now()
-      data.save();
-    }
+    if(data.WorkCooldown -(Date.now()-data.LastWorked)>0) return { result:"TIMEOUT", time:ms(timeout-(Data.now()-data.LastWorked)) };
+    data.Wallet += data.Salary
+    data.TimesWorked += 1
+    data.LastWorked = Date.now()
+    data.save();
+    return { result:"DONE" }
   }
 
   async resignJob({ UserID }) {
@@ -354,5 +348,19 @@ class TerrosEco extends EventEmitter {
     return data.SpecialCoin;
   }
 };
+
+TerrosEco.on('gotjob', (UserID) => {
+  while(data.Job != "Unemployed") {
+    setTimeout(() => {
+      const data = await profile.findOne({ UserID });
+      if(data.TimesWorked >= data.MinWorks) {
+        data.Salary = 0;
+        data.Job = "Unemployed";
+        data.save();
+        return "RESIGNED"
+      }
+    }, 86400000)
+  }
+})
 
 module.exports = TerrosEco;

@@ -14,7 +14,6 @@ module.exports = model(
     WorkCooldown :{ type: Number },
     MinWorks: { type: Number },
     TimesWorked: { type: Number, default: 0 },
-    FirstWork: { type: Date },
     // Inventory: { type: Array, default: [] },
     LastWorked: { type: String, },
     LastDaily: { type: Date },

@@ -1,6 +1,6 @@
 {
   "name": "terros-eco",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "a simple eco system",
   "main": "index.js",
   "scripts": {
@@ -8,16 +8,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/GamerterrosGit/-gamerterros-eco.git"
+    "url": "git+https://github.com/GamerterrosGit/TerrosEco.git"
   },
   "keywords": [],
   "author": "GamerTerros",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/GamerterrosGit/-gamerterros-eco/issues"
+    "url": "https://github.com/GamerterrosGit/TerrosEco/issues"
   },
-  "homepage": "https://github.com/GamerterrosGit/-gamerterros-eco#readme",
+  "homepage": "https://github.com/GamerterrosGit/TerrosEco#readme",
   "dependencies": {
-    "mongoose": "^6.2.4"
+    "events": "^3.3.0",
+    "mongoose": "^6.2.4",
+    "ms" : "^2.1.3"
   }
 }

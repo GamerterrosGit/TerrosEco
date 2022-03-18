@@ -1,34 +1,20 @@
 const mongoose = require("mongoose");
 const profile = require("./models/economy");
-const TerrosEco = class {
-  constructor({ notify, URI, SpecialCoin }) {
-    this.notify = notify || false;
+const ms = require('ms')
+const EventEmitter = require('events')
+class TerrosEco extends EventEmitter {
+  constructor({ URI, SpecialCoin }) {
     if (!URI) return console.log("Invalid URI");
     this.URI = URI;
     this.SpecialCoin = SpecialCoin || false;
   }
 
-  on(event, func) {
-    switch(event) {
-      case "ready" : return func()
-    }
-  }
-
   // Connect function which connects to database
   async connect() {
-    if (this.notify) {
-      mongoose
-        .connect(this.URI, {
-          useUnifiedTopology: true,
-          useNewUrlParser: true,
-        })
-        .then(console.log("TerrosEco | Connected to the Database!"));
-    } else {
-      mongoose.connect(this.URI, {
-        useUnifiedTopology: true,
-        useNewUrlParser: true,
-      });
-    }
+    mongoose.connect(this.URI, {
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+    }).then(() => this.emit('ready'));
   }
 
   // Register function which registers the user
@@ -264,13 +250,34 @@ const TerrosEco = class {
     return { job:data.Job, salary:data.Salary };
   }
 
-  async assignJob({ UserID, Job, Salary }) {
+  async assignJob({ UserID, Job, Salary, Cooldown, MinWorkPerDay }) {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
     data.Job = Job || data.Job;
     data.Salary = Salary || data.Salary;
+    data.WorkCooldown = Cooldown;
+    data.MinWorks = MinWorkPerDay;
+    data.FirstWork = Date.now();
     data.save();
     return "DONE";
+  }
+  
+  async work({ UserID }) {
+    const data = await profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED_USER";
+    if(data.Job === "Unemployed") return "NO_JOB";
+    if(data.MinWorks > data.TimesWorked && data.FirstWork > new Date().setHours(23,59,59,999)) {
+      data.Job = "Unemployed";
+      data.Salary = 0;
+      data.save();
+      return "RESIGNED"
+    } else {
+      if(data.WorkCooldown -(Date.now()-data.LastWorked)>0) return { result:"TIMEOUT", time:ms(timeout-(Data.now()-data.LastWorked)) };
+      data.Wallet += data.Salary
+      data.TimesWorked += 1
+      data.LastWorked = Date.now()
+      data.save();
+    }
   }
 
   async resignJob({ UserID }) {

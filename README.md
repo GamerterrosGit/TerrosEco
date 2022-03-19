@@ -40,7 +40,7 @@ client.on("ready", () => {
   console.log("Bot is Online");
 });
 
-client.eco = new TerrosEco({
+client.eco = new TerrosEco(client, {
   URI: "YOUR MONGODB URI",
   SpecialCoin: true, //enables the special coin system
 });

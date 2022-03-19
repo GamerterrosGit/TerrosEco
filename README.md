@@ -22,15 +22,9 @@ Let's take a look at how you can install this package into your Discord Bot Proj
 
 ## New Changes
 
-- 💸 <b>Job System<b> | You can give users Jobs and Salaries.
-
-- 💸 <b>Timed Payouts<b> | Added daily, weekly, monthly and yearly function.
-
-- 💸 <b>New Features<b> | Added utility functions like delete(deletes the user from the database), profile(returns all the properties stored by the user like wallet, bank, bankSpace, job, salary, lastDaily, id(the users id), created(the date when the user was created)) and finally the progressBar function takes values such as value(the current progress),maxValue, size(example 5, returns 5 progress bars with 20% and 40% and so on progress if the max value is 100).
-
-## Coming Soon
-
 - 🛒 <b>Shop System<b> | A system with buy,sell and trade functions and inventories
+
+- 💸 <b>New Features<b> | Added new functions like getInventory, getShop, getItem which are included in the shop system.
 
 ## Example Code
 
@@ -47,11 +41,13 @@ client.on("ready", () => {
 });
 
 client.eco = new TerrosEco({
-  notify: true, //console logs "Connected to database" if its true
   URI: "YOUR MONGODB URI",
   SpecialCoin: true, //enables the special coin system
 });
 client.eco.connect(); //Connects the package to the mongodb cluster
+client.eco.on('ready', () => {
+  console.log("TerrosBot | Connected to DataBase!")
+})
 
 client.on("interactionCreate", async (i) => {
   if (i.isCommand()) {

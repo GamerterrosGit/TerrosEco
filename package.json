@@ -1,6 +1,6 @@
 {
   "name": "terros-eco",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "description": "a simple eco system",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/GamerterrosGit/TerrosEco.git"
   },
-  "keywords": [],
+  "keywords": ["economy", "ecosystem", "terros", "terroseco", "discord.js", "mongodb economy", "mongodb eco", "mongodb economy system", "global economy"],
   "author": "GamerTerros",
   "license": "ISC",
   "bugs": {

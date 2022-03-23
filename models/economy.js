@@ -12,8 +12,6 @@ module.exports = model(
     Job: { type: String, default:'Unemployed' },
     Salary: { type: Number, default: 0 },
     WorkCooldown :{ type: Number },
-    MinWorks: { type: Number },
-    TimesWorked: { type: Number, default: 0 },
     Inventory: { type: Array, default: [] },
     LastWorked: { type: String, },
     LastDaily: { type: Date },

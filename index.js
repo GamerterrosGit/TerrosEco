@@ -4,24 +4,24 @@ const botprofile = require("./models/botdata");
 const ms = require("ms");
 const EventEmitter = require("events");
 class TerrosEco extends EventEmitter {
-  constructor(client, { URI, SpecialCoin }) {
-    if (!URI) return console.log("Invalid URI");
+  constructor(client, URI, options = {}) {
+    super()
     this.URI = URI;
+    if (!this.URI) return console.log("Invalid URI");
     this.client = client;
-    this.SpecialCoin = SpecialCoin || false;
+    this.SpecialCoin = options.SpecialCoin || false;
   }
-
   // Connect function which connects to database
   async connect() {
     new botprofile({
       BotID: this.client.user.id,
-    });
+    }).save();
     mongoose
       .connect(this.URI, {
         useUnifiedTopology: true,
         useNewUrlParser: true,
       })
-      .then(() => this.emit("ready"));
+      .then(() => super.emit("ready"));
   }
 
   // Register function which registers the user
@@ -273,19 +273,17 @@ class TerrosEco extends EventEmitter {
     return { job: data.Job, salary: data.Salary };
   }
 
-  async assignJob({ UserID, Job, Salary, Cooldown, MinWorkPerDay }) {
+  async assignJob({ UserID, Job, Salary, Cooldown }) {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
     data.Job = Job || data.Job;
     data.Salary = Salary || data.Salary;
     data.WorkCooldown = Cooldown;
-    data.MinWorks = MinWorkPerDay;
     data.save();
-    this.emit("gotjob", UserID);
     return "DONE";
   }
 
-  async work({ UserID }) {
+  async work({ UserID, Amount }) {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
     if (data.Job === "Unemployed") return "NO_JOB";
@@ -294,8 +292,7 @@ class TerrosEco extends EventEmitter {
         result: "TIMEOUT",
         time: ms(timeout - (Data.now() - data.LastWorked)),
       };
-    data.Wallet += data.Salary;
-    data.TimesWorked += 1;
+    data.Wallet += Amount || data.Salary;
     data.LastWorked = Date.now();
     data.save();
     return { result: "DONE" };
@@ -334,6 +331,7 @@ class TerrosEco extends EventEmitter {
       buy: ItemBuyPrice,
       sell: ItemSellPrice,
       id: ItemID,
+      count: 1
     };
     data.Shop.push(item);
     data.save();
@@ -354,11 +352,17 @@ class TerrosEco extends EventEmitter {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
     item = botdata.Shop.filter((item) => item.id == ItemID)
+    hasitem = data.Inventory.filter((item) => item.id == ItemID)
     if(!item) return "INVALID_ITEM";
     if(data.Wallet < item.buy) return "NOT_ENOUGH_CASH";
-    item.count += 1
+    if(!hasitem) {
+      data.Wallet -= item.buy;
+      data.Inventory.push(item);
+      data.save();
+      return "DONE"
+    }
     data.Wallet -= item.buy;
-    data.Inventory.push(item);
+    hasitem.count += 1;
     data.save();
     return "DONE"
   }
@@ -369,15 +373,14 @@ class TerrosEco extends EventEmitter {
     if (!data) return "UNREGISTERED_USER";
     item = data.Inventory.filter((item) => item.id == ItemID)
     if(!item) return "INVALID_ITEM"
-    data.Wallet += item.sell;
     items = data.Inventory.filter((item) => item.id != ItemID)
     if(item.count > 1) {
-      data.Inventory.filter((item) => item.id == ItemID).count -= 1
-      data.save();
-    } else {
-      data.Intentory = items
+      data.Wallet += item.sell;
+      item.count -= 1
       data.save();
     }
+    data.Intentory = items;
+    data.Wallet += item.sell;
     data.save();
     return "DONE"
   }
@@ -395,17 +398,17 @@ class TerrosEco extends EventEmitter {
     traderitems = traderdata.Inventory.filter((item) => item.id != traderItemID)
     recieveritems = recieverdata.Inventory.filter((item) => item.id != recieverItemID)
     if(recieveritem.count > 1) {
-      recieverdata.Inventory.filter((item) => item.id == ItemID).count -= 1
+      recieveritem.count -= 1;
       recieverdata.save();
     } else {
-      recieverdata.Intentory = recieveritems
+      recieverdata.Inventory = recieveritems
       recieverdata.save();
     }
     if(traderitem.count > 1) {
-      traderdata.Inventory.filter((item) => item.id == ItemID).count -= 1
+      traderitem.count -= 1
       traderdata.save();
     } else {
-      traderdata.Intentory = traderitems
+      traderdata.Inventory = traderitems
       traderdata.save();
     }
     traderdata.Inventory.push(recieveritem)
@@ -487,10 +490,6 @@ class TerrosEco extends EventEmitter {
     return data.Bank;
   }
 
-  // async test(id) {
-  //   return id;
-  // }
-
   async bankSpace({ UserID }) {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
@@ -503,19 +502,4 @@ class TerrosEco extends EventEmitter {
     return data.SpecialCoin;
   }
 }
-
-TerrosEco.on("gotjob", (UserID) => {
-  while (data.Job != "Unemployed") {
-    setTimeout(() => {
-      const data = await profile.findOne({ UserID });
-      if (data.TimesWorked >= data.MinWorks) {
-        data.Salary = 0;
-        data.Job = "Unemployed";
-        data.save();
-        return "RESIGNED";
-      }
-    }, 86400000);
-  }
-});
-
 module.exports = TerrosEco;

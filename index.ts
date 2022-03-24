@@ -4,17 +4,17 @@ const botprofile = require("./models/botdata");
 const ms = require("ms");
 const EventEmitter = require("events");
 class TerrosEco extends EventEmitter {
-  constructor(client, URI, options = {}) {
+  constructor(client, URI, { SpecialCoin }) {
     super()
     this.URI = URI;
-    if (!this.URI) return console.log("Invalid URI");
+    if (!this.URI) console.log("Invalid URI");
     this.client = client;
-    this.SpecialCoin = options.SpecialCoin || false;
+    this.SpecialCoin = SpecialCoin || false;
   }
   // Connect function which connects to database
-  async connect() {
+  connect() {
     new botprofile({
-      BotID: this.client.user.id,
+      BotID: this.client?.user?.id,
     }).save();
     mongoose
       .connect(this.URI, {
@@ -27,9 +27,9 @@ class TerrosEco extends EventEmitter {
   // Register function which registers the user
   async register({ UserID, DefaultWallet, DefaultBank, DefaultBankSpace }) {
     const data = await profile.findOne({ UserID });
-    if (data) return "REGISTERED";
+    if (data) return "ALREADY_REGISTERED";
     if (!this.SpecialCoin) {
-      new UserSchema({
+      new profile({
         UserID,
         CreatedAt: Date.now(),
         Wallet: DefaultWallet,
@@ -38,7 +38,7 @@ class TerrosEco extends EventEmitter {
       }).save();
       return "DONE";
     } else if (this.SpecialCoin) {
-      new UserSchema({
+      new profile({
         UserID,
         CreatedAt: Date.now(),
         Wallet: DefaultWallet,
@@ -52,7 +52,7 @@ class TerrosEco extends EventEmitter {
 
   async delete({ UserID }) {
     const data = await profile.findOne({ UserID });
-    if (!data) return "UNREGISTERED";
+    if (!data) return "UNREGISTERED_USER";
     data.delete();
     return "DONE";
   }
@@ -154,8 +154,7 @@ class TerrosEco extends EventEmitter {
   async withdraw({ UserID, Amount }) {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
-    if (data.Bank == 0 || data.Bank < Amount) return "USER_BROKE";
-
+    if (data.Bank == 0 || data.Bank < Amount) return "NOT_ENOUGH_MONEY";
     data.Bank = data.Bank - Amount;
     data.Wallet = data.Wallet + Amount;
     data.save();
@@ -165,7 +164,7 @@ class TerrosEco extends EventEmitter {
   async deposit({ UserID, Amount }) {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
-    if (data.Wallet == 0 || data.Wallet < Amount) return "USER_BROKE";
+    if (data.Wallet == 0 || data.Wallet < Amount) return "NOT_ENOUGH_MONEY";
     if (data.Wallet + Amount > data.BankSpace) return "NOT_ENOUGH_SPACE";
     data.Bank = data.Wallet + Amount;
     data.Wallet = data.Wallet - Amount;
@@ -179,7 +178,7 @@ class TerrosEco extends EventEmitter {
     if (!robberdata) return "UNREGISTERED_ROBBER";
     if (!victimdata) return "UNREGISTERED_VICTIM";
     if (victimdata.Wallet == 0 || victimdata.Wallet < Amount)
-      return "VICTIM_IS_BROKE";
+      return "VICTIM_IS_POOR";
     robberdata.Wallet = robberdata.Wallet + Amount;
     victimdata.Wallet = victimdata.Wallet - Amount;
     robberdata.save();
@@ -193,7 +192,7 @@ class TerrosEco extends EventEmitter {
     if (!victimdata) return "UNREGISTERED_PAYER";
     if (!robberdata) return "UNREGISTERED_RECIEVER";
     if (victimdata.Wallet == 0 || victimdata.Wallet < Amount)
-      return "PAYER_IS_BROKE";
+      return "PAYER_IS_POOR";
     robberdata.Wallet = robberdata.Wallet + Amount;
     victimdata.Wallet = victimdata.Wallet - Amount;
 
@@ -210,7 +209,7 @@ class TerrosEco extends EventEmitter {
     if (timeout - (Date.now() - data.LastWeekly) > 0)
       return {
         result: "TIMEOUT",
-        time: ms(timeout - (Data.now() - data.LastWeekly)),
+        time: ms(timeout - (Date.now() - data.LastWeekly)),
       };
     data.Wallet += reward;
     data.LastWeekly = Date.now();
@@ -226,7 +225,7 @@ class TerrosEco extends EventEmitter {
     if (timeout - (Date.now() - data.LastWeekly) > 0)
       return {
         result: "TIMEOUT",
-        time: ms(timeout - (Data.now() - data.LastWeekly)),
+        time: ms(timeout - (Date.now() - data.LastWeekly)),
       };
     data.Wallet += reward;
     data.LastWeekly = Date.now();
@@ -242,7 +241,7 @@ class TerrosEco extends EventEmitter {
     if (timeout - (Date.now() - data.LastMonthly) > 0)
       return {
         result: "TIMEOUT",
-        time: ms(timeout - (Data.now() - data.LastMonthly)),
+        time: ms(timeout - (Date.now() - data.LastMonthly)),
       };
     data.Wallet += reward;
     data.LastMonthly = Date.now();
@@ -258,7 +257,7 @@ class TerrosEco extends EventEmitter {
     if (timeout - (Date.now() - data.LastYearly) > 0)
       return {
         result: "TIMEOUT",
-        time: ms(timeout - (Data.now() - data.LastYearly)),
+        time: ms(timeout - (Date.now() - data.LastYearly)),
       };
     data.Wallet += reward;
     data.LastYearly = Date.now();
@@ -290,7 +289,7 @@ class TerrosEco extends EventEmitter {
     if (data.WorkCooldown - (Date.now() - data.LastWorked) > 0)
       return {
         result: "TIMEOUT",
-        time: ms(timeout - (Data.now() - data.LastWorked)),
+        time: ms(data.WorkCooldown - (Date.now() - data.LastWorked)),
       };
     data.Wallet += Amount || data.Salary;
     data.LastWorked = Date.now();
@@ -302,7 +301,7 @@ class TerrosEco extends EventEmitter {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
     if (data.Job === "Unemployed") return "NO_JOB";
-    data.Job = Unemployed;
+    data.Job = "Unemployed";
     data.Salary = data.Salary;
     data.save();
     return "DONE";
@@ -351,8 +350,8 @@ class TerrosEco extends EventEmitter {
     const botdata = await botprofile.findOne({ BotID: this.client.user.id });
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
-    item = botdata.Shop.filter((item) => item.id == ItemID)
-    hasitem = data.Inventory.filter((item) => item.id == ItemID)
+    const item = botdata.Shop.filter((item) => item.id == ItemID)
+    const hasitem = data.Inventory.filter((item) => item.id == ItemID)
     if(!item) return "INVALID_ITEM";
     if(data.Wallet < item.buy) return "NOT_ENOUGH_CASH";
     if(!hasitem) {
@@ -371,9 +370,9 @@ class TerrosEco extends EventEmitter {
     const botdata = await botprofile.findOne({ BotID: this.client.user.id });
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
-    item = data.Inventory.filter((item) => item.id == ItemID)
+    const item = data.Inventory.filter((item) => item.id == ItemID)
     if(!item) return "INVALID_ITEM"
-    items = data.Inventory.filter((item) => item.id != ItemID)
+    const items = data.Inventory.filter((item) => item.id != ItemID)
     if(item.count > 1) {
       data.Wallet += item.sell;
       item.count -= 1
@@ -391,12 +390,12 @@ class TerrosEco extends EventEmitter {
     const recieverdata = await profile.findOne({ recieverID });
     if (!traderdata) return "UNREGISTERED_TRADER";
     if (!recieverdata) return "UNREGISTERED_RECIEVER";
-    traderitem = traderdata.Inventory.filter((item) => item.id == traderItemID)
-    recieveritem = recieverdata.Inventory.filter((item) => item.id == recieverItemID)
+    const traderitem = traderdata.Inventory.filter((item) => item.id == traderItemID)
+    const recieveritem = recieverdata.Inventory.filter((item) => item.id == recieverItemID)
     if(!traderitem) return "INVALID_TRADER_ITEM";
     if(!recieveritem) return "INVALID_RECIEVER_ITEM";
-    traderitems = traderdata.Inventory.filter((item) => item.id != traderItemID)
-    recieveritems = recieverdata.Inventory.filter((item) => item.id != recieverItemID)
+    const traderitems = traderdata.Inventory.filter((item) => item.id != traderItemID)
+    const recieveritems = recieverdata.Inventory.filter((item) => item.id != recieverItemID)
     if(recieveritem.count > 1) {
       recieveritem.count -= 1;
       recieverdata.save();

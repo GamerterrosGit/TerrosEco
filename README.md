@@ -20,6 +20,10 @@ Let's take a look at how you can install this package into your Discord Bot Proj
 
 `npm i terros-eco --save`
 
+## Docs
+
+[Link](https://gamerterros.gitbook.io/terroseco)
+
 ## New Changes
 
 - 🛒 <b>Shop System<b> | A system with buy,sell and trade functions and inventories

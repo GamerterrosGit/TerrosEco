@@ -1,8 +1,8 @@
 {
   "name": "terros-eco",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "a simple eco system",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

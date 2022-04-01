@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const profile = require("./models/economy");
-const botprofile = require("./models/botdata");
+const profile = require('./models/economy.ts');
+const botprofile = require("./models/botdata.ts");
 const ms = require("ms");
 const EventEmitter = require("events");
 class TerrosEco extends EventEmitter {
@@ -340,6 +340,8 @@ class TerrosEco extends EventEmitter {
   async removeItem({ ItemID }) {
     const data = await botprofile.findOne({ BotID: this.client.user.id });
     if (data.Shop.length == 0) return "EMPTY_SHOP";
+    let item = data.Shop.filter((item) => item.id == ItemID);
+    if(!item) return "INVALID_ITEM";
     let items = data.Shop.filter((item) => item.id !== ItemID);
     data.Shop = items;
     data.save();
@@ -453,30 +455,6 @@ class TerrosEco extends EventEmitter {
     };
   }
 
-  async progressBar({ value, maxValue, size }) {
-    let barArray = [];
-    let bar = {
-      fillStart: "https://cdn.discordapp.com/emojis/937428162797797418.gif",
-      fillBar: "https://cdn.discordapp.com/emojis/937428161950519366.gif",
-      fillEnd: "https://cdn.discordapp.com/emojis/937428160889376828.gif",
-      emptyStart: "https://cdn.discordapp.com/emojis/937428162369970196.webp",
-      emptyBar: "https://cdn.discordapp.com/emojis/937428160109224006.webp",
-      emptyEnd: "https://cdn.discordapp.com/emojis/937428160188928081.webp",
-    };
-
-    let fill = Math.round(size * (value / maxValue > 1 ? 1 : value / maxValue));
-    let empty = size - fill > 0 ? size - fill : 0;
-
-    for (let i = 1; i <= fill; i++) barArray.push(bar.fillBar);
-    for (let i = 1; i <= empty; i++) barArray.push(bar.emptyBar);
-
-    barArray[0] = barArray[0] == bar.fillBar ? bar.fillStart : bar.emptyStart;
-    barArray[barArray.length - 1] =
-      barArray[barArray.length - 1] == bar.fillBar ? bar.fillEnd : bar.emptyEnd;
-
-    return barArray.join(``);
-  }
-
   async wallet({ UserID }) {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
@@ -501,4 +479,125 @@ class TerrosEco extends EventEmitter {
     return data.SpecialCoin;
   }
 }
-module.exports = TerrosEco;
+
+class Utility {
+   progressBar({ value, maxValue }){
+    if(!value || !maxValue) throw new TypeError("INVALID_VALUES");
+    let barArray = [];
+    let bar = {
+      fillStart: "https://cdn.discordapp.com/emojis/937428162797797418.gif",
+      fillBar: "https://cdn.discordapp.com/emojis/937428161950519366.gif",
+      fillEnd: "https://cdn.discordapp.com/emojis/937428160889376828.gif",
+      emptyStart: "https://cdn.discordapp.com/emojis/937428162369970196.webp",
+      emptyBar: "https://cdn.discordapp.com/emojis/937428160109224006.webp",
+      emptyEnd: "https://cdn.discordapp.com/emojis/937428160188928081.webp",
+    };
+    let fill = Math.floor(value / maxValue * 100);
+    let empty = 100 - fill;
+    let fillBar = Math.floor(fill / 100 * (bar.fillBar.length - bar.fillStart.length - bar.fillEnd.length));
+    let emptyBar = Math.floor(empty / 100 * (bar.emptyBar.length - bar.emptyStart.length - bar.emptyEnd.length));
+    barArray.push(bar.fillStart);
+    for (let i = 0; i < fillBar; i++) {
+      barArray.push(bar.fillBar);
+    }
+    barArray.push(bar.fillEnd);
+    for (let i = 0; i < emptyBar; i++) {
+      barArray.push(bar.emptyBar);
+    }
+    barArray.push(bar.emptyEnd);
+    return barArray.join("");
+  }
+
+  randomNumber({ min, max })  {
+    if(!min || !max) throw new TypeError("INVALID_VALUES");
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  profit({ costPrice, sellPrice })  {
+    if(!costPrice || !sellPrice) throw new TypeError("INVALID_VALUES");
+    return sellPrice - costPrice;
+  }
+
+  loss({ costPrice, sellPrice })  {
+    if(!costPrice || !sellPrice) throw new TypeError("INVALID_VALUES");
+    return costPrice - sellPrice;
+  }
+
+   average({ array }) {
+    if(!array || array.length == 0) throw new TypeError("INVALID_ARRAY");
+    return array.reduce((a, b) => a + b, 0) / array.length;
+  }
+
+   secondsToMs({ seconds })  {
+    if(!seconds) throw new TypeError("INVALID_VALUE");
+    return seconds * 1000;
+  }
+
+   minutesToMs({ minutes })  {
+    if(!minutes) throw new TypeError("INVALID_VALUE");
+    return minutes * 60000;
+  }
+
+   hoursToMs({ hours })  {
+    if(!hours) throw new TypeError("INVALID_VALUE");
+    return hours * 3600000;
+  }
+
+   daysToMs({ days })  {
+    if(!days) throw new TypeError("INVALID_VALUE");
+    return days * 86400000;
+  }
+
+   weeksToMs({ weeks })  {
+    if(!weeks) throw new TypeError("INVALID_VALUE");
+    return weeks * 604800000;
+  }
+
+   monthsToMs({ months })  {
+    if(!months) throw new TypeError("INVALID_VALUE");
+    return months * 2592000000;
+  }
+
+   yearsToMs({ years })  {
+    if(!years) throw new TypeError("INVALID_VALUE");
+    return years * 31536000000;
+  }
+
+   msToSeconds({ ms })  {
+    if(!ms) throw new TypeError("INVALID_VALUE");
+    return ms / 1000;
+  }
+
+   msToMinutes({ ms })  {
+    if(!ms) throw new TypeError("INVALID_VALUE");
+    return ms / 60000;
+  }
+
+   msToHours({ ms })  {
+    if(!ms) throw new TypeError("INVALID_VALUE");
+    return ms / 3600000;
+  }
+
+   msToDays({ ms })  {
+    if(!ms) throw new TypeError("INVALID_VALUE");
+    return ms / 86400000;
+  }
+
+   msToWeeks({ ms })  {
+    if(!ms) throw new TypeError("INVALID_VALUE");
+    return ms / 604800000;
+  }
+
+   msToMonths({ ms })  {
+    if(!ms) throw new TypeError("INVALID_VALUE");
+    return ms / 2592000000;
+  }
+
+   msToYears({ ms })  {
+    if(!ms) throw new TypeError("INVALID_VALUE");
+    return ms / 31536000000;
+  }
+
+}
+
+module.exports = { TerrosEco, Utility };

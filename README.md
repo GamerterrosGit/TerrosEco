@@ -14,6 +14,8 @@ A Discord.js v13 Module that allows you to Create an Basic Economy System for Yo
 
 - ⚡️ <b>Quick & Easy Setup</b> | Its really easy to set up a economy system with this package!
 
+- 🔨 <b>Utility Functions</b> | Has Utility Functions to help in making a economy system
+
 ## Install Package
 
 Let's take a look at how you can install this package into your Discord Bot Project.
@@ -26,15 +28,13 @@ Let's take a look at how you can install this package into your Discord Bot Proj
 
 ## New Changes
 
-- 🛒 <b>Shop System<b> | A system with buy,sell and trade functions and inventories
-
-- 💸 <b>New Features<b> | Added new functions like getInventory, getShop, getItem which are included in the shop system.
+- 🔨 <b>Utility Functions</b> | Added utility functions like msToSeconds, secondsToMs, progressBar, profit, loss, randomNumber
 
 ## Example Code
 
 ```js
 const { Client, Intents } = require("discord.js");
-const TerrosEco = require("terros-eco");
+const terroseco = require("terros-eco");
 const PREFIX = "!";
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
@@ -44,9 +44,10 @@ client.on("ready", () => {
   console.log("Bot is Online");
 });
 
-client.eco = new TerrosEco(client, "YOUR MONGODB URI", {
+client.eco = new terroseco.TerrosEco(client, "YOUR MONGODB URI", {
   SpecialCoin: true, //enables the special coin system
 });
+const utils = new terroseco.Utility();
 client.eco.connect(); //Connects the package to the mongodb cluster
 client.eco.on('ready', () => {
   console.log("TerrosBot | Connected to DataBase!")
@@ -71,6 +72,17 @@ client.on("interactionCreate", async (i) => {
       i.reply({
         content: `Wallet: ${wallet}\nBank: ${bank}/${bankSpace}\nTerrosCoins: ${SpecialCoin}`,
       });
+    }
+    if (commandName === "beg") {
+      const add = await client.eco.add({ UserID: i.user.id, Amount: utils.randomNumber({ min:1, max:100 }), Property: "Wallet" });
+      if (add === "UNREGISTERED_USER")
+        return i.reply({
+          content: "you havent registered please register",
+        });
+      if(add === "DONE")
+        return i.reply({
+          content: "You have begged",
+        });
     }
     if (commandName === "register") {
       const result = await client.eco.register({

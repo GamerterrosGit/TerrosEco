@@ -15,7 +15,7 @@ module.exports = model(
     Cooldown: { 
       start : { type: Date, default: null },
       cooldown : { type: Number },
-      id: { type: Number },
+      id: { type: String },
     },
     Inventory: { type: Array, default: [] },
     LastWorked: { type: String, },

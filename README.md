@@ -28,7 +28,7 @@ Let's take a look at how you can install this package into your Discord Bot Proj
 
 ## New Changes
 
-- 🔨 <b>Utility Functions</b> | Added utility functions like msToSeconds, secondsToMs, progressBar, profit, loss, randomNumber
+- 🔨 <b>Utility Functions</b> | Added utility functions like msToSeconds, secondsToMs, progressBar, profit, loss, randomNumber, cooldownSet, cooldownCheck.
 
 ## Example Code
 
@@ -49,9 +49,9 @@ client.eco = new terroseco.TerrosEco(client, "YOUR MONGODB URI", {
 });
 const utils = new terroseco.Utility();
 client.eco.connect(); //Connects the package to the mongodb cluster
-client.eco.on('ready', () => {
-  console.log("TerrosBot | Connected to DataBase!")
-})
+client.eco.on("ready", () => {
+  console.log("TerrosBot | Connected to DataBase!");
+});
 
 client.on("interactionCreate", async (i) => {
   if (i.isCommand()) {
@@ -74,12 +74,16 @@ client.on("interactionCreate", async (i) => {
       });
     }
     if (commandName === "beg") {
-      const add = await client.eco.add({ UserID: i.user.id, Amount: utils.randomNumber({ min:1, max:100 }), Property: "Wallet" });
+      const add = await client.eco.add({
+        UserID: i.user.id,
+        Amount: utils.randomNumber({ min: 1, max: 100 }),
+        Property: "Wallet",
+      });
       if (add === "UNREGISTERED_USER")
         return i.reply({
           content: "you havent registered please register",
         });
-      if(add === "DONE")
+      if (add === "DONE")
         return i.reply({
           content: "You have begged",
         });

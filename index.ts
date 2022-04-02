@@ -508,6 +508,28 @@ class Utility {
     return barArray.join("");
   }
 
+  cooldownSet({ UserID, cooldown, ID }) {
+    if(!UserID || !cooldown) throw new TypeError("INVALID_VALUES");
+    const data = profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED_USER";
+    if(data.Cooldown.id === ID) return "COOLDOWN_ALREADY_SET";
+    data.Cooldown = {
+      id: ID,
+      cooldown: ms(cooldown),
+      start: Date.now(),
+    };
+    data.save();
+  }
+
+  cooldownCheck({ UserID, ID }) {
+    if(!UserID || !ID) throw new TypeError("INVALID_VALUES");
+    const data = profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED_USER";
+    if(data.Cooldown.id !== ID) return "COOLDOWN_NOT_SET";
+    if(Date.now() - data.Cooldown.start < data.Cooldown.cooldown) return "STILL_ON_COOLDOWN";
+    return "NOT_ON_COOLDOWN";
+  }
+
   randomNumber({ min, max })  {
     if(!min || !max) throw new TypeError("INVALID_VALUES");
     return Math.floor(Math.random() * (max - min + 1)) + min;

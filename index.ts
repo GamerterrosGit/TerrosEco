@@ -4,24 +4,26 @@ const botprofile = require("./models/botdata.ts");
 const ms = require("ms");
 const EventEmitter = require("events");
 class TerrosEco extends EventEmitter {
-  constructor(client, URI, { SpecialCoin }) {
+  constructor(BotID, URI, { SpecialCoin }) {
     super()
     this.URI = URI;
     if (!this.URI) console.log("Invalid URI");
-    this.client = client;
+    this.botid = BotID;
     this.SpecialCoin = SpecialCoin || false;
   }
   // Connect function which connects to database
   connect() {
-    new botprofile({
-      BotID: this.client?.user?.id,
-    }).save();
-    mongoose
-      .connect(this.URI, {
+    botprofile.findOne({ BotID: this.botid }, (err, data) => {
+      if (!data) {
+        new botprofile({
+          BotID: this.botid,
+        }).save();
+      }
+    });
+    mongoose.connect(this.URI, {
         useUnifiedTopology: true,
         useNewUrlParser: true,
-      })
-      .then(() => super.emit("ready"));
+      }).then(() => super.emit("ready"));
   }
 
   // Register function which registers the user
@@ -318,7 +320,7 @@ class TerrosEco extends EventEmitter {
     ItemBuyPrice,
     ItemSellPrice,
   }) {
-    const data = await botprofile.findOne({ BotID: this.client.user.id });
+    const data = await botprofile.findOne({ BotID: this.botid });
     if (
       data.Shop.find((x) => x.id === ItemID || x.name === ItemName) != undefined
     )
@@ -338,7 +340,7 @@ class TerrosEco extends EventEmitter {
   }
 
   async removeItem({ ItemID }) {
-    const data = await botprofile.findOne({ BotID: this.client.user.id });
+    const data = await botprofile.findOne({ BotID: this.botid });
     if (data.Shop.length == 0) return "EMPTY_SHOP";
     let item = data.Shop.filter((item) => item.id == ItemID);
     if(!item) return "INVALID_ITEM";
@@ -349,7 +351,7 @@ class TerrosEco extends EventEmitter {
   }
 
   async buy({ UserID, ItemID }) {
-    const botdata = await botprofile.findOne({ BotID: this.client.user.id });
+    const botdata = await botprofile.findOne({ BotID: this.botid });
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
     const item = botdata.Shop.filter((item) => item.id == ItemID)
@@ -369,7 +371,7 @@ class TerrosEco extends EventEmitter {
   }
 
   async sell({ UserID, ItemID }) {
-    const botdata = await botprofile.findOne({ BotID: this.client.user.id });
+    const botdata = await botprofile.findOne({ BotID: this.botid });
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
     const item = data.Inventory.filter((item) => item.id == ItemID)
@@ -387,7 +389,7 @@ class TerrosEco extends EventEmitter {
   }
 
   async trade({ traderID, traderItemID, recieverID, recieverItemID }) {
-    const botdata = await botprofile.findOne({ BotID: this.client.user.id });
+    const botdata = await botprofile.findOne({ BotID: this.botid });
     const traderdata = await profile.findOne({ traderID });
     const recieverdata = await profile.findOne({ recieverID });
     if (!traderdata) return "UNREGISTERED_TRADER";
@@ -420,12 +422,12 @@ class TerrosEco extends EventEmitter {
   }
 
   async getItem({ ItemID }) {
-    const data = await botprofile.findOne({ BotID: this.client.user.id });
+    const data = await botprofile.findOne({ BotID: this.botid });
     return data.Shop.filter((item) => item.id == ItemID) ? data.Shop.filter((item) => item.id == ItemID) : "INVALID_ITEM";
   }
 
   async getShop() {
-    const data = await botprofile.findOne({ BotID: this.client.user.id });
+    const data = await botprofile.findOne({ BotID: this.botid });
     return !data.Shop || data.Shop.length == 0 ? "EMPTY_SHOP" : data.Shop;
   }
 

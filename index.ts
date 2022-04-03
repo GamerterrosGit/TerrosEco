@@ -59,98 +59,69 @@ class TerrosEco extends EventEmitter {
     return "DONE";
   }
 
-  async add({ UserID, Amount, Property }) {
+  async addMoney({ UserID, Amount }) {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
-    if (
-      Property != "Wallet" ||
-      Property != "Bank" ||
-      Property != "SpecialCoin" ||
-      Property != "BankSpace"
-    )
-      throw new TypeError(
-        "Invalid Property: the properties can only be Wallet, Bank, BankSpace or SpecialCoin"
-      );
-    switch (Property) {
-      case "Wallet":
-        {
-          data.Wallet = data.Wallet + Amount;
-          data.save();
-          return "DONE";
-        }
-        break;
-
-      case "Bank":
-        {
-          data.Bank = data.Bank + Amount;
-          data.save();
-          return "DONE";
-        }
-        break;
-
-      case "BankSpace":
-        {
-          data.BankSpace = data.BankSpace + Amount;
-          data.save();
-          return "DONE";
-        }
-        break;
-
-      case "SpecialCoin":
-        {
-          data.SpecialCoin = data.SpecialCoin + Amount;
-          data.save();
-          return "DONE";
-        }
-        break;
-    }
+    data.Wallet += Amount;
+    data.save();
+    return "DONE";
+  }
+  async addBank({ UserID, Amount }) {
+    const data = await profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED_USER";
+    data.Bank += Amount;
+    data.save();
+    return "DONE";
   }
 
-  async remove({ UserID, Amount, Property }) {
+  async addSpecialCoin({ UserID, Amount }) {
     const data = await profile.findOne({ UserID });
     if (!data) return "UNREGISTERED_USER";
-    if (
-      Property != "Wallet" ||
-      Property != "Bank" ||
-      Property != "SpecialCoin" ||
-      Property != "BankSpace"
-    )
-      throw new TypeError(
-        "Invalid Property: the properties can only be Wallet, Bank, BankSpace or SpecialCoin"
-      );
-    switch (Property) {
-      case "Wallet":
-        {
-          data.Wallet = data.Wallet - Amount;
-          data.save();
-          return "DONE";
-        }
-        break;
+    data.SpecialCoin += Amount;
+    data.save();
+    return "DONE";
+  }
 
-      case "Bank":
-        {
-          data.Bank = data.Bank - Amount;
-          data.save();
-          return "DONE";
-        }
-        break;
+  async addBankSpace({ UserID, Amount }) {
+    const data = await profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED_USER";
+    data.BankSpace += Amount;
+    data.save();
+    return "DONE";
+  }
 
-      case "BankSpace":
-        {
-          data.BankSpace = data.BankSpace - Amount;
-          data.save();
-          return "DONE";
-        }
-        break;
 
-      case "SpecialCoin":
-        {
-          data.SpecialCoin = data.SpecialCoin - Amount;
-          data.save();
-          return "DONE";
-        }
-        break;
-    }
+
+  async removeMoney({ UserID, Amount }) {
+    const data = await profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED_USER";
+    data.Wallet -= Amount;
+    data.save();
+    return "DONE";
+  }
+
+  async removeBank({ UserID, Amount }) {
+    const data = await profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED_USER";
+    data.Bank -= Amount;
+    data.save();
+    return "DONE";
+  }
+
+  async removeSpecialCoin({ UserID, Amount }) {
+    const data = await profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED_USER";
+    data.SpecialCoin -= Amount;
+    data.save();
+    return "DONE";
+  }
+
+  async removeBankSpace({ UserID, Amount }) {
+    const data = await profile.findOne({ UserID });
+    if (!data) return "UNREGISTERED_USER";
+    data.BankSpace -= Amount;
+    data.save();
+    return "DONE";
   }
 
   async withdraw({ UserID, Amount }) {

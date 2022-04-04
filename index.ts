@@ -454,31 +454,16 @@ class TerrosEco extends EventEmitter {
 }
 
 class Utility {
-   progressBar({ value, maxValue }){
-    if(!value || !maxValue) throw new TypeError("INVALID_VALUES");
-    let barArray = [];
-    let bar = {
-      fillStart: "https://cdn.discordapp.com/emojis/937428162797797418.gif",
-      fillBar: "https://cdn.discordapp.com/emojis/937428161950519366.gif",
-      fillEnd: "https://cdn.discordapp.com/emojis/937428160889376828.gif",
-      emptyStart: "https://cdn.discordapp.com/emojis/937428162369970196.webp",
-      emptyBar: "https://cdn.discordapp.com/emojis/937428160109224006.webp",
-      emptyEnd: "https://cdn.discordapp.com/emojis/937428160188928081.webp",
-    };
-    let fill = Math.floor(value / maxValue * 100);
-    let empty = 100 - fill;
-    let fillBar = Math.floor(fill / 100 * (bar.fillBar.length - bar.fillStart.length - bar.fillEnd.length));
-    let emptyBar = Math.floor(empty / 100 * (bar.emptyBar.length - bar.emptyStart.length - bar.emptyEnd.length));
-    barArray.push(bar.fillStart);
-    for (let i = 0; i < fillBar; i++) {
-      barArray.push(bar.fillBar);
+  progressBar({ value, max }) {
+    let percentage = (value / max) * 100;
+    let bar = "";
+    for (let i = 0; i < percentage; i++) {
+      bar += "█";
     }
-    barArray.push(bar.fillEnd);
-    for (let i = 0; i < emptyBar; i++) {
-      barArray.push(bar.emptyBar);
+    for (let i = 0; i < 100 - percentage; i++) {
+      bar += "░";
     }
-    barArray.push(bar.emptyEnd);
-    return barArray.join("");
+    return bar;
   }
 
   cooldownSet({ UserID, cooldown, ID }) {

@@ -1,6 +1,6 @@
 {
   "name": "terros-eco",
-  "version": "4.0.10",
+  "version": "4.0.11",
   "description": "a simple eco system",
   "main": "index.ts",
   "scripts": {

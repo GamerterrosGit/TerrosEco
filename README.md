@@ -50,7 +50,7 @@ client.eco = new terroseco.TerrosEco("UR BOTS ID", "YOUR MONGODB URI", {
 const utils = new terroseco.Utility();
 client.eco.connect(); //Connects the package to the mongodb cluster
 client.eco.on("ready", () => {
-  console.log("TerrosBot | Connected to DataBase!");
+  console.log("Bot | Connected to DataBase!");
 });
 
 client.on("interactionCreate", async (i) => {
